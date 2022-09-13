@@ -1,6 +1,7 @@
 import './App.css';
-import { useEffect, useState } from 'react';
-import styled from '@emotion/styled';
+import { useEffect, useReducer, useState } from 'react';
+
+import { Container, Title, TwoColumnlayout } from './pokemons.styles';
 
 import PokemonDetail from './components/PokemonDetail';
 import PokemonFilter from './components/PokemonFilter';
@@ -8,44 +9,55 @@ import PokemonTable from './components/PokemonTable';
 
 import PokemonContext from './pokemon.context';
 
-const Container = styled.div`
-  width: 100%;
-  max-width: 800px;
-  padding: 1rem;
-  border: 1px solid #eee;
-  border-radius: 10px;
-  margin: 1rem auto;
-`;
+const pokemonReducer = (state, action) => {
+  switch (action.type) {
+    case 'SET_FILTER':
+      return {
+        ...state,
+        filter: action.payload,
+      };
+    case 'SET_POKEMONS':
+      return {
+        ...state,
+        pokemons: action.payload,
+      };
+    case 'SET_SELECTED_POKEMON':
+      return {
+        ...state,
+        selectedPokemon: action.payload,
+      };
+    default:
+      throw new Error('No action');
+  }
+};
 
-const Title = styled.h1`
-  text-align: center;
-`;
-
-const TwoColumnlayout = styled.div`
-  display: grid;
-  grid-template-columns: 70% 30%;
-  grid-column-gap: 1rem;
-`;
+const initialState = {
+  pokemons: [],
+  filter: '',
+  selectedPokemon: null,
+};
 
 function App() {
-  const [pokemons, pokemonsSet] = useState([]);
-  const [filter, filerSet] = useState('');
-  const [selectedPokemon, selectedPokemonSet] = useState(null);
+  const [state, dispatch] = useReducer(pokemonReducer, initialState);
 
   useEffect(() => {
     fetch('http://localhost:3000/react-test-one/pokemon.json')
       .then((ress) => ress.json())
-      .then((data) => pokemonsSet(data));
-  }, [filter]);
+      .then((data) =>
+        dispatch({
+          type: 'SET_POKEMONS',
+          payload: data,
+        })
+      );
+  }, []);
+
+  if (state.pokemons.length < 1) return <p>...loading</p>;
 
   return (
     <PokemonContext.Provider
       value={{
-        pokemons,
-        filter,
-        filerSet,
-        selectedPokemon,
-        selectedPokemonSet,
+        state,
+        dispatch,
       }}
     >
       <Container>
