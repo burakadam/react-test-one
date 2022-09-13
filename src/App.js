@@ -1,24 +1,64 @@
-import logo from './logo.svg';
 import './App.css';
+import { useEffect, useState } from 'react';
+import styled from '@emotion/styled';
+
+import PokemonDetail from './components/PokemonDetail';
+import PokemonFilter from './components/PokemonFilter';
+import PokemonTable from './components/PokemonTable';
+
+import PokemonContext from './pokemon.context';
+
+const Container = styled.div`
+  width: 100%;
+  max-width: 800px;
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  margin: 1rem auto;
+`;
+
+const Title = styled.h1`
+  text-align: center;
+`;
+
+const TwoColumnlayout = styled.div`
+  display: grid;
+  grid-template-columns: 70% 30%;
+  grid-column-gap: 1rem;
+`;
 
 function App() {
+  const [pokemons, pokemonsSet] = useState([]);
+  const [filter, filerSet] = useState('');
+  const [selectedPokemon, selectedPokemonSet] = useState(null);
+
+  useEffect(() => {
+    fetch('http://localhost:3000/react-test-one/pokemon.json')
+      .then((ress) => ress.json())
+      .then((data) => pokemonsSet(data));
+  }, [filter]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <PokemonContext.Provider
+      value={{
+        pokemons,
+        filter,
+        filerSet,
+        selectedPokemon,
+        selectedPokemonSet,
+      }}
+    >
+      <Container>
+        <Title>Pokemon Search</Title>
+        <PokemonFilter />
+        <TwoColumnlayout>
+          <div>
+            <PokemonTable />
+          </div>
+          <PokemonDetail />
+        </TwoColumnlayout>
+      </Container>
+    </PokemonContext.Provider>
   );
 }
 
