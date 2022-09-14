@@ -4,7 +4,7 @@ import PokemonRow from './PokemonRow';
 
 const PokemonTable = () => {
   const {
-    state: { pokemons, filter, selectedPokemonSet },
+    state: { pokemons, filter },
     dispatch,
   } = useContext(PokemonContext);
   return (
